@@ -1,4 +1,4 @@
-package com.ticket.management.role;
+package com.ticket.management.core.role;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

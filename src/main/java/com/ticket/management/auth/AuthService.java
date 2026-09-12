@@ -8,10 +8,11 @@ import com.ticket.management.entity.User;
 
 import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.ticket.management.role.RoleRepository;
+
 import java.util.Collections;
 
 import com.ticket.management.core.customer.CustomerRepository;
+import com.ticket.management.core.role.RoleRepository;
 import com.ticket.management.core.user.UserRepository;
 import com.ticket.management.dto.customer.CustomerRequestDto;
 import com.ticket.management.dto.customer.CustomerResponseDto;
