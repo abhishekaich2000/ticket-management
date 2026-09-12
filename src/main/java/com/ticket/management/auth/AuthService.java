@@ -5,16 +5,18 @@ import com.ticket.management.dto.user.UserRequestDto;
 import com.ticket.management.dto.user.UserResponseDto;
 import com.ticket.management.entity.Role;
 import com.ticket.management.entity.User;
-import com.ticket.management.user.UserRepository;
 
 import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.ticket.management.role.RoleRepository;
 import java.util.Collections;
+
+import com.ticket.management.core.customer.CustomerRepository;
+import com.ticket.management.core.user.UserRepository;
 import com.ticket.management.dto.customer.CustomerRequestDto;
 import com.ticket.management.dto.customer.CustomerResponseDto;
 import com.ticket.management.entity.Customer;
-import com.ticket.management.customer.CustomerRepository;
+
 import org.springframework.transaction.annotation.Transactional;
 import com.ticket.management.exception.ResourceConflictException;
 

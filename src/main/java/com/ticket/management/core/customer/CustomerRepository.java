@@ -1,4 +1,4 @@
-package com.ticket.management.customer;
+package com.ticket.management.core.customer;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.ticket.management.entity.Customer;
