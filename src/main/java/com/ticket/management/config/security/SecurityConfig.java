@@ -33,7 +33,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers(UrlConfig.PUBLIC_URLS).permitAll();
-                auth.requestMatchers("/api/agents/register").hasRole("ADMIN");
                 auth.anyRequest().authenticated();
             })
             //.httpBasic(Customizer.withDefaults())
