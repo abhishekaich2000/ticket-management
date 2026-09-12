@@ -33,5 +33,5 @@ build/
 .vscode/
 
 ### Other ###
-.mvn/
 .DS_Store
+org/
