@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import com.ticket.management.auth.CustomerUserDetailsService;
+import com.ticket.management.auth.AppUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -64,7 +64,7 @@ public class SecurityConfig {
     }
 
     @Bean 
-    DaoAuthenticationProvider authenticationProvider(CustomerUserDetailsService customerUserDetailsService) {
+    DaoAuthenticationProvider authenticationProvider(AppUserDetailsService customerUserDetailsService) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(customerUserDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;

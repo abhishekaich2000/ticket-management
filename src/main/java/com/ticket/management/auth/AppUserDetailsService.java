@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Service
-public class CustomerUserDetailsService implements UserDetailsService{
+public class AppUserDetailsService implements UserDetailsService{
 
     private UserRepository userRepository;
 
-    public CustomerUserDetailsService(UserRepository userRepository) {
+    public AppUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

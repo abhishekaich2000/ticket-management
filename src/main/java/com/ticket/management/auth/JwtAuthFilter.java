@@ -25,7 +25,7 @@ public class JwtAuthFilter extends OncePerRequestFilter{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final JwtService jwtService;
-    private final CustomerUserDetailsService userDetailsService;
+    private final AppUserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
