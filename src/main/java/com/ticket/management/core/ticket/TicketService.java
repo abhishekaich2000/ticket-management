@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.HashSet;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import com.ticket.management.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +21,7 @@ import com.ticket.management.core.user.UserRepository;
 import com.ticket.management.entity.User;
 import com.ticket.management.exception.GeneralErrorException;
 import org.springframework.http.HttpStatus;
+import com.ticket.management.util.SecurityUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -101,12 +101,7 @@ public class TicketService {
     }
 
     private User getCustomer() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (email == null) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        return userRepository.findByEmail(email)
-            .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        return SecurityUtil.getAuthenticatedUser();
     }
 
     private String generateTicketNumber() {

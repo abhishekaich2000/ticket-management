@@ -44,6 +44,10 @@ public class AppUserDetails implements UserDetails{
         return user.getId();
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public boolean hasRole(String roleName){
         String authority = roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
         return getAuthorities().stream()
