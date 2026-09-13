@@ -105,4 +105,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorRecordDto,HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(GeneralErrorException.class)
+    public ResponseEntity<ErrorRecordDto> handleGeneralErrorException(GeneralErrorException exception, WebRequest webRequest) {
+        ErrorRecordDto errorRecordDto = new ErrorRecordDto(
+            webRequest.getDescription(false),
+            exception.getMessage(),
+            exception.getHttpStatus().name(),
+            LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorRecordDto,exception.getHttpStatus());
+    }
 }
