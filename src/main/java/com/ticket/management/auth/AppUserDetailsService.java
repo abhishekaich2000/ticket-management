@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 import com.ticket.management.core.user.UserRepository;
 import com.ticket.management.entity.User;
 
-import java.util.stream.Collectors;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 @Service
 public class AppUserDetailsService implements UserDetailsService{
 
@@ -26,12 +23,6 @@ public class AppUserDetailsService implements UserDetailsService{
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         
-        return org.springframework.security.core.userdetails.User
-            .withUsername(user.getEmail())
-            .password(user.getPassword())
-            .authorities(user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
-                .collect(Collectors.toList()))
-            .build();
+        return new AppUserDetails(user);
     }
 }
