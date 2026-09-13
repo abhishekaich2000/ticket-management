@@ -41,9 +41,6 @@ public class AppUserDetails implements UserDetails{
     }
 
     public Long getId() {
-        if(isCustomer()){
-            return user.getCustomer().getId();
-        }
         return user.getId();
     }
 

@@ -16,8 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.ticket.management.dto.JwtDto;
-import com.ticket.management.dto.customer.CustomerRequestDto;
-import com.ticket.management.dto.customer.CustomerResponseDto;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
@@ -50,8 +48,8 @@ public class AuthController {
     }
 
     @PostMapping("/customers/register")
-    public ResponseEntity<CustomerResponseDto> registerCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto) {
-        CustomerResponseDto customerResponseDto = authService.registerCustomer(customerRequestDto);
+    public ResponseEntity<UserResponseDto> registerCustomer(@Valid @RequestBody UserRequestDto customerRequestDto) {
+        UserResponseDto customerResponseDto = authService.registerUser(customerRequestDto);
         return new ResponseEntity<>(customerResponseDto, HttpStatus.CREATED);
     }
     @PostMapping("/customers/login")

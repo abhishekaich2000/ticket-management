@@ -2,14 +2,12 @@ package com.ticket.management.core.ticket;
 
 import org.springframework.stereotype.Service;
 
-import com.ticket.management.core.customer.CustomerRepository;
 import com.ticket.management.dto.ticket.TicketRequestDto;
 import com.ticket.management.dto.ticket.TicketResponseDto;
 import com.ticket.management.entity.Ticket;
 import com.ticket.management.entity.TicketStatus;
 import com.ticket.management.entity.TicketPriority;
 import com.ticket.management.entity.TicketCategory;
-import com.ticket.management.entity.Customer;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -29,7 +27,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public class TicketService {
 
-    private final CustomerRepository customerRepository;
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
 
@@ -103,12 +100,12 @@ public class TicketService {
         }
     }
 
-    private Customer getCustomer() {
+    private User getCustomer() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         if (email == null) {
             throw new ResourceNotFoundException("User not found");
         }
-        return customerRepository.findByEmail(email)
+        return userRepository.findByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
     }
 

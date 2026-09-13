@@ -16,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
 
 @Entity
 @Getter
@@ -48,7 +47,4 @@ public class User extends BaseEntity{
 
     @Column(name = "isActive", nullable = false)
     private Boolean isActive = true;
-
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-    private Customer customer;
 }
