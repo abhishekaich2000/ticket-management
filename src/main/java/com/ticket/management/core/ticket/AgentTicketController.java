@@ -4,36 +4,42 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import lombok.RequiredArgsConstructor;
 
-import com.ticket.management.dto.ticket.TicketRequestDto;
 import com.ticket.management.dto.ticket.TicketResponseDto;
 
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import java.util.List;
 import com.ticket.management.dto.ticket.TicketUpdateRequestDto;
 
 @RestController 
-@RequestMapping("/tickets")
+@RequestMapping("/agents/tickets")
 @RequiredArgsConstructor 
-public class TicketController {
+public class AgentTicketController {
 
     private final TicketService ticketService;
 
-    @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public TicketResponseDto createTicket(@Valid  @RequestBody TicketRequestDto ticketRequestDto) {
-        return ticketService.createTicket(ticketRequestDto);
-    }
-
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
     public TicketResponseDto getTicket(@PathVariable Long id) {
         return ticketService.getTicket(id);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    public List<TicketResponseDto> getMyTickets() {
+        return ticketService.getMyTickets();
+    }
+
+    @GetMapping 
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    public List<TicketResponseDto> getTickets() {
+        return ticketService.getTickets();
     }
 
     @PutMapping("/{id}")

@@ -22,6 +22,8 @@ import com.ticket.management.entity.User;
 import com.ticket.management.exception.GeneralErrorException;
 import org.springframework.http.HttpStatus;
 import com.ticket.management.util.SecurityUtil;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class TicketService {
         ticket.setTitle(generateTitle(ticketRequestDto.getDescription()));
         ticket.setDescription(ticketRequestDto.getDescription());
         ticket.setStatus(TicketStatus.OPEN);
-        ticket.setCustomer(getCustomer());
+        ticket.setCustomer(getUser());
         ticket.setAssignedAgent(null);
         ticket.setCategory(
             ticketRequestDto.getCategory() != null ? ticketRequestDto.getCategory() : TicketCategory.OTHER
@@ -89,6 +91,32 @@ public class TicketService {
         return convertToDto(updatedTicket);
     }
 
+    public List<TicketResponseDto> getCustomerTickets() {
+        return ticketRepository.findByCustomerId(getUser().getId())
+            .stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
+    public TicketResponseDto getCustomerTicket(Long id) {
+        return convertToDto(ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found")));
+    }
+
+    public List<TicketResponseDto> getMyTickets() {
+        return ticketRepository.findByAssignedAgentId(getUser().getId())
+            .stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
+    public List<TicketResponseDto> getTickets() {
+        return ticketRepository.findAll()
+            .stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
     private void assignAgent(Ticket ticket, Long agentId) {
         User assignedAgent = userRepository
             .findByIdAndIsActiveTrueAndRoles_RoleName(agentId, "AGENT")
@@ -100,7 +128,7 @@ public class TicketService {
         }
     }
 
-    private User getCustomer() {
+    private User getUser() {
         return SecurityUtil.getAuthenticatedUser();
     }
 
