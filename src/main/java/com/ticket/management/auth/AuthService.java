@@ -29,11 +29,11 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserResponseDto registerUser(UserRequestDto userRequestDto) {
+    public UserResponseDto registerUser(UserRequestDto userRequestDto, String roleName) {
         userRepository.findByEmail(userRequestDto.getEmail()).ifPresent(user -> {
             throw new ResourceConflictException("User already exists");
         });
-        Role role = roleRepository.findByRoleName("AGENT").orElseThrow(() -> new ResourceConflictException("Role not found"));
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(() -> new ResourceConflictException("Role not found"));
         User user = new User();
         user.setName(userRequestDto.getName());
         user.setEmail(userRequestDto.getEmail());

@@ -29,7 +29,7 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/agents/register")
     public ResponseEntity<UserResponseDto> registerAgent(@Valid @RequestBody UserRequestDto userRequestDto) {
-        UserResponseDto userResponseDto = authService.registerUser(userRequestDto);
+        UserResponseDto userResponseDto = authService.registerUser(userRequestDto,"AGENT");
         return new ResponseEntity<>(userResponseDto, HttpStatus.CREATED);
     }
 
@@ -49,7 +49,7 @@ public class AuthController {
 
     @PostMapping("/customers/register")
     public ResponseEntity<UserResponseDto> registerCustomer(@Valid @RequestBody UserRequestDto customerRequestDto) {
-        UserResponseDto customerResponseDto = authService.registerUser(customerRequestDto);
+        UserResponseDto customerResponseDto = authService.registerUser(customerRequestDto,"CUSTOMER");
         return new ResponseEntity<>(customerResponseDto, HttpStatus.CREATED);
     }
     @PostMapping("/customers/login")

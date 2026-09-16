@@ -99,7 +99,8 @@ public class TicketService {
     }
 
     public TicketResponseDto getCustomerTicket(Long id) {
-        return convertToDto(ticketRepository.findById(id)
+        User user = getUser();
+        return convertToDto(ticketRepository.findByIdAndCustomerId(id, user.getId())
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found")));
     }
 
