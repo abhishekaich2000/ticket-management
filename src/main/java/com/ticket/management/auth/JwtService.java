@@ -10,16 +10,19 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import com.ticket.management.dto.JwtDto;
+import com.ticket.management.config.JwtProperties;
+import lombok.RequiredArgsConstructor;
 
-@Service 
+@Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    private static final String SECRET_KEY = "kjefkjwbfnkjwnlwnflkwvjkwfkljwen";
+    private final JwtProperties jwtProperties;
 
     public JwtDto generateToken(UserDetails userDetails) {
         Date date = new Date(System.currentTimeMillis());
         Date expiration = new Date(System.currentTimeMillis() + 60 * 60 * 1000L);  // 1 hour
-        
+
         String token = Jwts.builder()
             .subject(userDetails.getUsername()) // username is email, used to load the user from the database and check the token is valid
             .claim("email", userDetails.getUsername())
@@ -28,7 +31,7 @@ public class JwtService {
                 .collect(Collectors.toList()))
             .issuedAt(date)
             .expiration(expiration)
-            .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+            .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes()))
             .compact();
         return new JwtDto(token, "Bearer", expiration.getTime() - date.getTime());
     }
@@ -40,7 +43,7 @@ public class JwtService {
 
     private Claims extractClaims(String token) {
         return Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+            .verifyWith(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes()))
             .build()
             .parseSignedClaims(token)
             .getPayload();
