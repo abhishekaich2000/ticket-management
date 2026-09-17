@@ -1,4 +1,4 @@
-package com.ticket.management.auth;
+package com.ticket.management.service;
 
 import org.springframework.stereotype.Service;
 

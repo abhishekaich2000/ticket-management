@@ -1,4 +1,4 @@
-package com.ticket.management.core.user;
+package com.ticket.management.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

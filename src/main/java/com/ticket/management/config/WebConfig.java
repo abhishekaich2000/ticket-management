@@ -1,4 +1,4 @@
-package com.ticket.management.config.security;
+package com.ticket.management.config;
 
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.context.annotation.Configuration;

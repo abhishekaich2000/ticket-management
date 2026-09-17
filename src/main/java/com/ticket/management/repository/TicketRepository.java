@@ -1,4 +1,4 @@
-package com.ticket.management.core.ticket;
+package com.ticket.management.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.ticket.management.entity.Ticket;

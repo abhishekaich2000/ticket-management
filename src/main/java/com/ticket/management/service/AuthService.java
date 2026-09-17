@@ -1,8 +1,6 @@
-package com.ticket.management.auth;
+package com.ticket.management.service;
 
 import org.springframework.stereotype.Service;
-import com.ticket.management.dto.user.UserRequestDto;
-import com.ticket.management.dto.user.UserResponseDto;
 import com.ticket.management.entity.Role;
 import com.ticket.management.entity.User;
 
@@ -11,10 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 
-import com.ticket.management.core.role.RoleRepository;
-import com.ticket.management.core.user.UserRepository;
-
+import com.ticket.management.dto.UserRequestDto;
+import com.ticket.management.dto.UserResponseDto;
 import com.ticket.management.exception.ResourceConflictException;
+import com.ticket.management.repository.RoleRepository;
+import com.ticket.management.repository.UserRepository;
 
 @Service
 public class AuthService {

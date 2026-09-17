@@ -1,4 +1,4 @@
-package com.ticket.management.dto.user;
+package com.ticket.management.dto;
 
 import lombok.Getter;
 import lombok.Setter;

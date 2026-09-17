@@ -1,6 +1,10 @@
-package com.ticket.management.core.ticket;
+package com.ticket.management.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ticket.management.dto.TicketRequestDto;
+import com.ticket.management.dto.TicketResponseDto;
+import com.ticket.management.service.TicketService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,8 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.ticket.management.dto.ticket.TicketResponseDto;
-import com.ticket.management.dto.ticket.TicketRequestDto;
 import jakarta.validation.Valid;
 
 

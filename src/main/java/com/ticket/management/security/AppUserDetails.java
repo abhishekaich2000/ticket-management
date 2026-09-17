@@ -1,4 +1,4 @@
-package com.ticket.management.auth;
+package com.ticket.management.security;
 
 import java.util.Collection;
 

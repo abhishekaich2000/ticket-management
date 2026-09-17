@@ -3,8 +3,8 @@ package com.ticket.management.util;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.ticket.management.auth.AppUserDetails;
 import com.ticket.management.entity.User;
+import com.ticket.management.security.AppUserDetails;
 
 public class SecurityUtil {
 

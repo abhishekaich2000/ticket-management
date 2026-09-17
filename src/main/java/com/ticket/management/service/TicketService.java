@@ -1,9 +1,7 @@
-package com.ticket.management.core.ticket;
+package com.ticket.management.service;
 
 import org.springframework.stereotype.Service;
 
-import com.ticket.management.dto.ticket.TicketRequestDto;
-import com.ticket.management.dto.ticket.TicketResponseDto;
 import com.ticket.management.entity.Ticket;
 import com.ticket.management.entity.TicketStatus;
 import com.ticket.management.entity.TicketPriority;
@@ -15,9 +13,14 @@ import java.util.HashSet;
 
 import lombok.RequiredArgsConstructor;
 import com.ticket.management.exception.ResourceNotFoundException;
+import com.ticket.management.repository.TicketRepository;
+import com.ticket.management.repository.UserRepository;
+
 import org.springframework.transaction.annotation.Transactional;
-import com.ticket.management.dto.ticket.TicketUpdateRequestDto;
-import com.ticket.management.core.user.UserRepository;
+
+import com.ticket.management.dto.TicketRequestDto;
+import com.ticket.management.dto.TicketResponseDto;
+import com.ticket.management.dto.TicketUpdateRequestDto;
 import com.ticket.management.entity.User;
 import com.ticket.management.exception.GeneralErrorException;
 import org.springframework.http.HttpStatus;

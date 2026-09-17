@@ -1,4 +1,4 @@
-package com.ticket.management.core.user;
+package com.ticket.management.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;

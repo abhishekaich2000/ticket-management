@@ -1,6 +1,8 @@
-package com.ticket.management.auth;
+package com.ticket.management.security;
 
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.ticket.management.service.JwtService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

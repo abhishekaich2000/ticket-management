@@ -1,12 +1,8 @@
-package com.ticket.management.auth;
+package com.ticket.management.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import com.ticket.management.dto.user.UserLoginDto;
-import com.ticket.management.dto.user.UserRequestDto;
-import com.ticket.management.dto.user.UserResponseDto;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +12,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.ticket.management.dto.JwtDto;
+import com.ticket.management.dto.UserLoginDto;
+import com.ticket.management.dto.UserRequestDto;
+import com.ticket.management.dto.UserResponseDto;
+import com.ticket.management.service.AuthService;
+import com.ticket.management.service.JwtService;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController

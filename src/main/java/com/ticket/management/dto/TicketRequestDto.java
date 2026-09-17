@@ -1,4 +1,4 @@
-package com.ticket.management.dto.ticket;
+package com.ticket.management.dto;
 
 import com.ticket.management.entity.TicketCategory;
 import com.ticket.management.entity.TicketPriority;

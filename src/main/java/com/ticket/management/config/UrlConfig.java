@@ -1,4 +1,4 @@
-package com.ticket.management.config.security;
+package com.ticket.management.config;
 
 public class UrlConfig {
     public static final String[] PUBLIC_URLS = {
