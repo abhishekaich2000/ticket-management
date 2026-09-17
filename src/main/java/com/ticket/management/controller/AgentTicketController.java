@@ -67,7 +67,7 @@ public class AgentTicketController {
     public TicketResponseDto updateTicketStatus(@PathVariable Long id,
         @Valid @RequestBody TicketStatusDto ticketStatusDto
     ) {
-        return ticketService.updateTicketStatus(id, ticketStatusDto.getStatus());
+        return ticketService.updateTicketStatus(id, ticketStatusDto);
     }
 
     @PutMapping("/{id}/priority")
