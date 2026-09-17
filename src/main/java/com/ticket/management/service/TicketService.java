@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ticket.management.dto.TicketRequestDto;
 import com.ticket.management.dto.TicketResponseDto;
+import com.ticket.management.dto.TicketStatusDto;
 import com.ticket.management.dto.TicketUpdateRequestDto;
 import com.ticket.management.entity.User;
 import com.ticket.management.exception.GeneralErrorException;
@@ -71,24 +72,6 @@ public class TicketService {
         if (ticketUpdateRequestDto.getDescription() != null) {
             ticket.setDescription(ticketUpdateRequestDto.getDescription());
         }
-        if (ticketUpdateRequestDto.getPriority() != null) {
-            updateTicketPriority(ticket, ticketUpdateRequestDto.getPriority());
-        }
-        if (ticketUpdateRequestDto.getCategory() != null) {
-            ticket.setCategory(ticketUpdateRequestDto.getCategory());
-        }
-        if (ticketUpdateRequestDto.getSlaDueAt() != null) {
-            updateSlaDueAt(ticket, ticketUpdateRequestDto.getSlaDueAt());
-        }
-
-        // Assign agent before status so ASSIGNED validation sees the agent
-        if (ticketUpdateRequestDto.getAssignedAgentId() != null) {
-            assignAgent(ticket, ticketUpdateRequestDto.getAssignedAgentId());
-        }
-
-        if (ticketUpdateRequestDto.getStatus() != null) {
-            updateTicketStatus(ticket, ticketUpdateRequestDto.getStatus());
-        }
 
         Ticket updatedTicket = ticketRepository.save(ticket);
         return convertToDto(updatedTicket);
@@ -119,6 +102,48 @@ public class TicketService {
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
+    }
+
+    public TicketResponseDto assignTicket(Long id, Long userId) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        User agent = userRepository.findByIdAndIsActiveTrueAndRoles_RoleName(userId, "AGENT")
+            .orElseThrow(() -> new ResourceNotFoundException("Agent not found"));
+        assignAgent(ticket, agent.getId());
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return convertToDto(updatedTicket);
+    }
+
+    public TicketResponseDto updateTicketStatus(Long id, TicketStatusDto ticketStatusDto) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        updateTicketStatus(ticket, ticketStatusDto.getStatus());
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return convertToDto(updatedTicket);
+    }
+
+    public TicketResponseDto updateTicketPriority(Long id, TicketPriority newPriority) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        updateTicketPriority(ticket, newPriority);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return convertToDto(updatedTicket);
+    }
+
+    public TicketResponseDto updateSlaDueAt(Long id, LocalDateTime newSlaDueAt) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        updateSlaDueAt(ticket, newSlaDueAt);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return convertToDto(updatedTicket);
+    }
+
+    public TicketResponseDto updateTicketCategory(Long id, TicketCategory newCategory) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        ticket.setCategory(newCategory);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+        return convertToDto(updatedTicket);
     }
 
     private void assignAgent(Ticket ticket, Long agentId) {
