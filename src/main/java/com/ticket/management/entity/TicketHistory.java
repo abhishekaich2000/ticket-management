@@ -22,8 +22,9 @@ public class TicketHistory extends BaseEntity {
     @JoinColumn(name = "actor_id", nullable = true)
     private User actor;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "entity_type", nullable = false)
-    private String entityType;
+    private TicketEntityType entityType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)

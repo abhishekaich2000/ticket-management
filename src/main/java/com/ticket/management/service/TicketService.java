@@ -6,6 +6,8 @@ import com.ticket.management.entity.Ticket;
 import com.ticket.management.entity.TicketStatus;
 import com.ticket.management.entity.TicketPriority;
 import com.ticket.management.entity.TicketCategory;
+import com.ticket.management.entity.TicketEntityType;
+import com.ticket.management.entity.TicketEventType;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -13,6 +15,7 @@ import java.util.HashSet;
 
 import lombok.RequiredArgsConstructor;
 import com.ticket.management.exception.ResourceNotFoundException;
+import com.ticket.management.mq.producer.TicketEventsProducer;
 import com.ticket.management.repository.TicketRepository;
 import com.ticket.management.repository.UserRepository;
 
@@ -23,6 +26,7 @@ import com.ticket.management.dto.TicketResponseDto;
 import com.ticket.management.dto.TicketStatusDto;
 import com.ticket.management.dto.TicketUpdateRequestDto;
 import com.ticket.management.entity.User;
+import com.ticket.management.events.TicketEvent;
 import com.ticket.management.exception.GeneralErrorException;
 import org.springframework.http.HttpStatus;
 import com.ticket.management.util.SecurityUtil;
@@ -35,6 +39,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final TicketEventsProducer ticketEventsProducer;
 
     public TicketResponseDto createTicket(TicketRequestDto ticketRequestDto) {
         Ticket ticket = new Ticket();
@@ -52,6 +57,13 @@ public class TicketService {
         updateTicketPriority(ticket, priority);
 
         Ticket savedTicket = ticketRepository.save(ticket);
+        TicketEvent ticketCreatedEvent = TicketEvent.builder()
+            .ticketId(savedTicket.getId())
+            .userId(getUser().getId())
+            .entityType(TicketEntityType.TICKET)
+            .eventType(TicketEventType.CREATED)
+            .build();
+        ticketEventsProducer.sendTicketCreatedEvent(ticketCreatedEvent);
         return convertToDto(savedTicket);
     }
 
@@ -65,15 +77,40 @@ public class TicketService {
     public TicketResponseDto updateTicket(Long id, TicketUpdateRequestDto ticketUpdateRequestDto) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
-
+        TicketEvent titleUpdateEvent = null;
+        TicketEvent descriptionUpdateEvent = null;
         if (ticketUpdateRequestDto.getTitle() != null) {
             ticket.setTitle(ticketUpdateRequestDto.getTitle());
+            titleUpdateEvent = TicketEvent.builder()
+                .ticketId(ticket.getId())
+                .userId(getUser().getId())
+                .entityType(TicketEntityType.TITLE)
+                .eventType(TicketEventType.UPDATED)
+                .oldValue(ticket.getTitle())
+                .newValue(ticketUpdateRequestDto.getTitle())
+                .timestamp(LocalDateTime.now())
+                .build();
         }
         if (ticketUpdateRequestDto.getDescription() != null) {
             ticket.setDescription(ticketUpdateRequestDto.getDescription());
+            descriptionUpdateEvent = TicketEvent.builder()
+                .ticketId(ticket.getId())
+                .userId(getUser().getId())
+                .entityType(TicketEntityType.DESCRIPTION)
+                .eventType(TicketEventType.UPDATED)
+                .oldValue(ticket.getDescription())
+                .newValue(ticketUpdateRequestDto.getDescription())
+                .timestamp(LocalDateTime.now())
+                .build();
         }
 
         Ticket updatedTicket = ticketRepository.save(ticket);
+        if (titleUpdateEvent != null) {
+            ticketEventsProducer.sendTicketCreatedEvent(titleUpdateEvent);
+        }
+        if (descriptionUpdateEvent != null) {
+            ticketEventsProducer.sendTicketCreatedEvent(descriptionUpdateEvent);
+        }
         return convertToDto(updatedTicket);
     }
 
@@ -107,42 +144,97 @@ public class TicketService {
     public TicketResponseDto assignTicket(Long id, Long userId) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        String oldAgentName = ticket.getAssignedAgent() != null ? ticket.getAssignedAgent().getName() : null;
         User agent = userRepository.findByIdAndIsActiveTrueAndRoles_RoleName(userId, "AGENT")
             .orElseThrow(() -> new ResourceNotFoundException("Agent not found"));
         assignAgent(ticket, agent.getId());
         Ticket updatedTicket = ticketRepository.save(ticket);
+        TicketEvent ticketAssignedEvent = TicketEvent.builder()
+            .ticketId(updatedTicket.getId())
+            .userId(getUser().getId())
+            .entityType(TicketEntityType.ASSIGNEE)
+            .eventType(TicketEventType.UPDATED)
+            .oldValue(oldAgentName)
+            .newValue(agent.getName())
+            .timestamp(LocalDateTime.now())
+            .build();
+        ticketEventsProducer.sendTicketCreatedEvent(ticketAssignedEvent);
         return convertToDto(updatedTicket);
     }
 
     public TicketResponseDto updateTicketStatus(Long id, TicketStatusDto ticketStatusDto) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        String oldStatus = ticket.getStatus() != null ? ticket.getStatus().toString() : null;
         updateTicketStatus(ticket, ticketStatusDto.getStatus());
         Ticket updatedTicket = ticketRepository.save(ticket);
+        TicketEvent ticketStatusEvent = TicketEvent.builder()
+            .ticketId(updatedTicket.getId())
+            .userId(getUser().getId())
+            .entityType(TicketEntityType.STATUS)
+            .eventType(TicketEventType.UPDATED)
+            .oldValue(oldStatus)
+            .newValue(updatedTicket.getStatus().toString())
+            .timestamp(LocalDateTime.now())
+            .build();
+        ticketEventsProducer.sendTicketCreatedEvent(ticketStatusEvent);
         return convertToDto(updatedTicket);
     }
 
     public TicketResponseDto updateTicketPriority(Long id, TicketPriority newPriority) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        String oldPriority = ticket.getPriority() != null ? ticket.getPriority().toString() : null;
         updateTicketPriority(ticket, newPriority);
         Ticket updatedTicket = ticketRepository.save(ticket);
+        TicketEvent ticketPriorityEvent = TicketEvent.builder()
+            .ticketId(updatedTicket.getId())
+            .userId(getUser().getId())
+            .entityType(TicketEntityType.PRIORITY)
+            .eventType(TicketEventType.UPDATED)
+            .oldValue(oldPriority)
+            .newValue(updatedTicket.getPriority().toString())
+            .timestamp(LocalDateTime.now())
+            .build();
+        ticketEventsProducer.sendTicketCreatedEvent(ticketPriorityEvent);
         return convertToDto(updatedTicket);
     }
 
     public TicketResponseDto updateSlaDueAt(Long id, LocalDateTime newSlaDueAt) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        String oldSlaDueAt = ticket.getSlaDueAt() != null ? ticket.getSlaDueAt().toString() : null;
         updateSlaDueAt(ticket, newSlaDueAt);
         Ticket updatedTicket = ticketRepository.save(ticket);
+        TicketEvent ticketSlaDueAtEvent = TicketEvent.builder()
+            .ticketId(updatedTicket.getId())
+            .userId(getUser().getId())
+            .entityType(TicketEntityType.SLA)
+            .eventType(TicketEventType.UPDATED)
+            .oldValue(oldSlaDueAt)
+            .newValue(updatedTicket.getSlaDueAt().toString())
+            .timestamp(LocalDateTime.now())
+            .build();
+        ticketEventsProducer.sendTicketCreatedEvent(ticketSlaDueAtEvent);
         return convertToDto(updatedTicket);
     }
 
     public TicketResponseDto updateTicketCategory(Long id, TicketCategory newCategory) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        String oldCategory = ticket.getCategory() != null ? ticket.getCategory().toString() : null;
         ticket.setCategory(newCategory);
         Ticket updatedTicket = ticketRepository.save(ticket);
+        TicketEvent ticketCategoryEvent = TicketEvent.builder()
+            .ticketId(updatedTicket.getId())
+            .userId(getUser().getId())
+            .entityType(TicketEntityType.CATEGORY)
+            .eventType(TicketEventType.UPDATED)
+            .oldValue(oldCategory)
+            .newValue(updatedTicket.getCategory().toString())
+            .timestamp(LocalDateTime.now())
+            .build();
+        ticketEventsProducer.sendTicketCreatedEvent(ticketCategoryEvent);
         return convertToDto(updatedTicket);
     }
 

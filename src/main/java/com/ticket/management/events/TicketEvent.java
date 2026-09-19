@@ -1,22 +1,27 @@
-package com.ticket.management.dto;
+package com.ticket.management.events;
 
 import com.ticket.management.entity.TicketEntityType;
 import com.ticket.management.entity.TicketEventType;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class TicketHistoryResponseDto {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TicketEvent {
 
-    private Long id;
     private Long ticketId;
-    private Long actorId;
-    private String actorEmail;
+    private Long userId;
     private TicketEntityType entityType;
     private TicketEventType eventType;
     private String oldValue;
     private String newValue;
-    private LocalDateTime createdAt;
+    private LocalDateTime timestamp;
 }

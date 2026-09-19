@@ -10,3 +10,9 @@ services:
       - 5432:5432
     volumes:
       - ./postgres_data:/var/lib/postgresql
+
+  rabbitmq:
+    image: rabbitmq:4.3.6-management
+    ports:
+      - 5672:5672
+      - 15672:15672
