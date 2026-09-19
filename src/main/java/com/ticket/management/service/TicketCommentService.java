@@ -1,10 +1,14 @@
 package com.ticket.management.service;
 
 import com.ticket.management.entity.TicketComment;
+import com.ticket.management.entity.TicketEntityType;
+import com.ticket.management.entity.TicketEventType;
 import com.ticket.management.entity.User;
+import com.ticket.management.events.TicketEvent;
 import com.ticket.management.repository.TicketCommentRepository;
 import com.ticket.management.repository.TicketRepository;
 import com.ticket.management.exception.ResourceNotFoundException;
+import com.ticket.management.mq.producer.TicketEventsProducer;
 import com.ticket.management.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,7 @@ public class TicketCommentService {
 
     private final TicketCommentRepository commentRepository;
     private final TicketRepository ticketRepository;
+    private final TicketEventsProducer ticketEventsProducer;
 
     @Transactional
     public TicketComment addComment(Long ticketId, String content, Boolean isInternal) {
@@ -35,8 +40,18 @@ public class TicketCommentService {
             .orElse("UNKNOWN"));
         comment.setContent(content);
         comment.setIsInternal(isInternal);
-
-        return commentRepository.save(comment);
+        TicketEvent ticketCommentEvent = TicketEvent.builder()
+            .ticketId(ticket.getId())
+            .userId(user.getId())
+            .entityType(TicketEntityType.COMMENT)
+            .eventType(TicketEventType.CREATED)
+            .oldValue(null)
+            .newValue(content)
+            .timestamp(java.time.LocalDateTime.now())
+            .build();
+        TicketComment savedComment = commentRepository.save(comment);
+        ticketEventsProducer.sendTicketCreatedEvent(ticketCommentEvent);
+        return savedComment;
     }
 
     public List<TicketComment> getTicketComments(Long ticketId) {

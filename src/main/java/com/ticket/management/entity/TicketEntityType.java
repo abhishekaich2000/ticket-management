@@ -9,5 +9,6 @@ public enum TicketEntityType {
     STATUS,
     ASSIGNEE,
     SLA,
-    CATEGORY
+    CATEGORY,
+    TICKET_COMMENT;
 }
