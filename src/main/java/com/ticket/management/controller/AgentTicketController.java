@@ -2,17 +2,22 @@ package com.ticket.management.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import lombok.RequiredArgsConstructor;
 
+import com.ticket.management.dto.PagedResponse;
 import com.ticket.management.dto.TicketAssginDto;
 import com.ticket.management.dto.TicketResponseDto;
 import com.ticket.management.dto.TicketStatusDto;
 import com.ticket.management.dto.TicketPriorityDto;
 import com.ticket.management.dto.TicketCategoryDto;
 import com.ticket.management.dto.TicketSlaDueDateDto;
+import com.ticket.management.dto.TicketSortField;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +26,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 import com.ticket.management.dto.TicketUpdateRequestDto;
+import com.ticket.management.entity.TicketCategory;
+import com.ticket.management.entity.TicketPriority;
+import com.ticket.management.entity.TicketStatus;
+import com.ticket.management.repository.SortOrder;
 import com.ticket.management.service.TicketService;
 
 @RestController 
@@ -44,8 +53,19 @@ public class AgentTicketController {
 
     @GetMapping 
     @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
-    public List<TicketResponseDto> getTickets() {
-        return ticketService.getTickets();
+    public ResponseEntity<PagedResponse<TicketResponseDto>> getTickets(
+        @Valid  @RequestParam (name="status", required = false) TicketStatus status,
+        @Valid  @RequestParam (name="priority", required = false) TicketPriority priority,
+        @Valid  @RequestParam (name="category", required = false) TicketCategory category,
+        @Valid  @RequestParam (name="assignedAgentId", required = false) Long assignedAgentId,
+        @Valid  @RequestParam (name="customerId", required = false) Long customerId,
+        @Valid  @RequestParam (name="sortBy", required = false, defaultValue = "CREATED_AT") TicketSortField sortBy,
+        @Valid  @RequestParam (name="orderBy", required = false, defaultValue = "DESC") SortOrder orderBy,
+        @Valid  @RequestParam (name="page", required = false, defaultValue = "0") Integer page,
+        @Valid  @RequestParam (name="size", required = false, defaultValue = "10") Integer size
+    ) {
+        PagedResponse<TicketResponseDto> pagedResponse = ticketService.getTickets(status, priority, category, assignedAgentId, customerId, sortBy, orderBy, page, size);
+        return ResponseEntity.ok(pagedResponse);
     }
 
     @PutMapping("/{id}")

@@ -16,18 +16,26 @@ import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import com.ticket.management.exception.ResourceNotFoundException;
 import com.ticket.management.mq.producer.TicketEventsProducer;
+import com.ticket.management.repository.SortOrder;
 import com.ticket.management.repository.TicketRepository;
+import com.ticket.management.repository.TicketSpecification;
 import com.ticket.management.repository.UserRepository;
 
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import com.ticket.management.dto.PagedResponse;
 import com.ticket.management.dto.TicketRequestDto;
 import com.ticket.management.dto.TicketResponseDto;
+import com.ticket.management.dto.TicketSortField;
 import com.ticket.management.dto.TicketStatusDto;
 import com.ticket.management.dto.TicketUpdateRequestDto;
 import com.ticket.management.entity.User;
 import com.ticket.management.events.TicketEvent;
 import com.ticket.management.exception.GeneralErrorException;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import com.ticket.management.util.SecurityUtil;
 import java.util.List;
@@ -134,11 +142,49 @@ public class TicketService {
             .collect(Collectors.toList());
     }
 
-    public List<TicketResponseDto> getTickets() {
-        return ticketRepository.findAll()
+    public PagedResponse<TicketResponseDto> getTickets(
+        TicketStatus status, 
+        TicketPriority priority, 
+        TicketCategory category, 
+        Long assignedAgentId, 
+        Long customerId,
+        TicketSortField sortBy,
+        SortOrder sortOrder,
+        int pageNumber,
+        int pageSize) {
+
+        if(pageNumber < 0){
+            pageNumber = 0;
+        }
+        if(pageSize < 1){
+            pageSize = 10;
+        }
+        if(pageSize > 100){
+            pageSize = 100;
+        }
+
+        Sort.Direction direction = sortOrder == SortOrder.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String fieldName = sortBy != null ? sortBy.getFieldName() : "createdAt";
+        Sort sort = Sort.by(direction, fieldName);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Ticket> ticketPage = ticketRepository.findAll(
+            TicketSpecification.filterByCriteria(status, priority, category, assignedAgentId, customerId),
+            pageable
+        );
+        List<TicketResponseDto> ticketDtos = ticketPage.getContent()
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
+            
+        return new PagedResponse<>(
+            ticketDtos,
+            ticketPage.getNumber(),
+            ticketPage.getSize(),
+            ticketPage.getTotalElements(),
+            ticketPage.getTotalPages(),
+            ticketPage.isLast()
+        );
     }
 
     public TicketResponseDto assignTicket(Long id, Long userId) {
