@@ -1,7 +1,7 @@
 package com.ticket.management.controller;
 
-import com.ticket.management.entity.TicketComment;
 import com.ticket.management.service.TicketCommentService;
+import com.ticket.management.dto.PagedResponse;
 import com.ticket.management.dto.TicketCommentRequestDto;
 import com.ticket.management.dto.TicketCommentResponseDto;
 import jakarta.validation.Valid;
@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/agents/tickets/{ticketId}/comments")
@@ -25,18 +23,20 @@ public class AgentTicketCommentController {
     public ResponseEntity<TicketCommentResponseDto> addComment(
             @PathVariable Long ticketId,
             @Valid @RequestBody TicketCommentRequestDto requestDto) {
-        TicketComment comment = commentService.addComment(ticketId, requestDto.getContent(),
+        TicketCommentResponseDto comment = commentService.addComment(ticketId, requestDto.getContent(),
             requestDto.getIsInternal() != null ? requestDto.getIsInternal() : false);
-        return new ResponseEntity<>(convertToDto(comment), HttpStatus.CREATED);
+        return new ResponseEntity<>(comment, HttpStatus.CREATED);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
-    public ResponseEntity<List<TicketCommentResponseDto>> getTicketComments(@PathVariable Long ticketId) {
-        List<TicketComment> comments = commentService.getTicketComments(ticketId);
-        return ResponseEntity.ok(comments.stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList()));
+    public ResponseEntity<PagedResponse<TicketCommentResponseDto>> getTicketComments(
+        @PathVariable Long ticketId,
+        @RequestParam (name="page", required = false, defaultValue = "0") Integer pageNumber,
+        @RequestParam (name="size", required = false, defaultValue = "10") Integer pageSize
+    ) {
+        PagedResponse<TicketCommentResponseDto> comments = commentService.getTicketComments(ticketId, pageNumber, pageSize);
+        return ResponseEntity.ok(comments);
     }
 
     @DeleteMapping("/{commentId}")
@@ -44,18 +44,5 @@ public class AgentTicketCommentController {
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
-    }
-
-    private TicketCommentResponseDto convertToDto(TicketComment comment) {
-        TicketCommentResponseDto dto = new TicketCommentResponseDto();
-        dto.setId(comment.getId());
-        dto.setTicketId(comment.getTicket().getId());
-        dto.setAuthorId(comment.getAuthor() != null ? comment.getAuthor().getId() : null);
-        dto.setAuthorEmail(comment.getEmail());
-        dto.setAuthorRole(comment.getRole());
-        dto.setContent(comment.getContent());
-        dto.setIsInternal(comment.getIsInternal());
-        dto.setCreatedAt(comment.getCreatedAt());
-        return dto;
     }
 }
