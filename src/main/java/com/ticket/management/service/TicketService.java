@@ -122,11 +122,45 @@ public class TicketService {
         return convertToDto(updatedTicket);
     }
 
-    public List<TicketResponseDto> getCustomerTickets() {
-        return ticketRepository.findByCustomerId(getUser().getId())
+    public PagedResponse<TicketResponseDto> getCustomerTickets(
+        TicketStatus status, 
+        TicketPriority priority, 
+        TicketCategory category, 
+        TicketSortField sortBy,
+        SortOrder orderBy,
+        int pageNumber,
+        int pageSize
+    ) {
+        if(pageNumber < 0){
+            pageNumber = 0;
+        }
+        if(pageSize < 1){
+            pageSize = 10;
+        }
+        if(pageSize > 100){
+            pageSize = 100;
+        }
+        Sort.Direction direction = orderBy == SortOrder.ASC ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String fieldName = sortBy != null ? sortBy.getFieldName() : "createdAt";
+        Sort sort = Sort.by(direction, fieldName);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Ticket> ticketPage = ticketRepository.findAll(
+            TicketSpecification.filterByCriteria(status, priority, category, null,getUser().getId()),
+            pageable
+        );
+        List<TicketResponseDto> ticketDtos = ticketPage.getContent()
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
+
+        return new PagedResponse<>(
+            ticketDtos,
+            ticketPage.getNumber(),
+            ticketPage.getSize(),
+            ticketPage.getTotalElements(),
+            ticketPage.getTotalPages(),
+            ticketPage.isLast()
+        );
     }
 
     public TicketResponseDto getCustomerTicket(Long id) {
@@ -176,7 +210,7 @@ public class TicketService {
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
-            
+
         return new PagedResponse<>(
             ticketDtos,
             ticketPage.getNumber(),
