@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional (readOnly = true)
 public class TicketService {
 
     private final TicketRepository ticketRepository;
@@ -242,6 +243,7 @@ public class TicketService {
         return convertToDto(updatedTicket);
     }
 
+    @Transactional 
     public TicketResponseDto updateTicketStatus(Long id, TicketStatusDto ticketStatusDto) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
@@ -261,6 +263,7 @@ public class TicketService {
         return convertToDto(updatedTicket);
     }
 
+    @Transactional 
     public TicketResponseDto updateTicketPriority(Long id, TicketPriority newPriority) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
@@ -280,6 +283,7 @@ public class TicketService {
         return convertToDto(updatedTicket);
     }
 
+    @Transactional 
     public TicketResponseDto updateSlaDueAt(Long id, LocalDateTime newSlaDueAt) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
@@ -299,6 +303,7 @@ public class TicketService {
         return convertToDto(updatedTicket);
     }
 
+    @Transactional 
     public TicketResponseDto updateTicketCategory(Long id, TicketCategory newCategory) {
         Ticket ticket = ticketRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));

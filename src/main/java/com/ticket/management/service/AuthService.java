@@ -1,6 +1,8 @@
 package com.ticket.management.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ticket.management.entity.Role;
 import com.ticket.management.entity.User;
 
@@ -16,6 +18,7 @@ import com.ticket.management.repository.RoleRepository;
 import com.ticket.management.repository.UserRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -28,6 +31,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional 
     public UserResponseDto registerUser(UserRequestDto userRequestDto, String roleName) {
         userRepository.findByEmail(userRequestDto.getEmail()).ifPresent(user -> {
             throw new ResourceConflictException("User already exists");
