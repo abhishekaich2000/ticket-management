@@ -2,6 +2,7 @@ package com.ticket.management.mq.consumer;
 
 import java.util.Optional;
 
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class TicketEventsConsumer {
     public void consumeTicketEvent(TicketEvent event) {
         try {
             log.info("Received Ticket Created Event: {}", event);
+            test();
             Optional<Ticket> optionalTicket = ticketRepository.findById(event.getTicketId());
             if(!optionalTicket.isPresent()) {
                 log.warn("Ticket with ID {} not found", event.getTicketId());
@@ -47,6 +49,18 @@ public class TicketEventsConsumer {
             log.info("Recorded ticket with entity {} with event {} for ticket ID {} by user ID {}", event.getEntityType(), event.getEventType(), event.getTicketId(), event.getUserId());
         } catch (Exception e) {
             log.error("Error while consuming ticket event {} with exception {}", event.getEventType(), e);
+            throw new AmqpRejectAndDontRequeueException("Retry and DLQ", e);
         }
+    }
+
+    @RabbitListener (queues = RabbitMQConfig.DLQ_QUEUE)
+    public void handleDLQ(TicketEvent event){
+        log.error("Ticket event failed after max retires, so pushing in DLQ with event {} and ticketId {}", event.getEventType(), event.getTicketId());
+
+        // TODO add audit and alert
+    }
+
+    private void test() throws Exception{
+        throw new Exception("DLQ test");
     }
 }

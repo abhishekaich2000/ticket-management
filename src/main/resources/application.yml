@@ -26,6 +26,15 @@ spring:
     port: 5672
     username: guest
     password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 5
+          initial-interval: 1000  # 1 sec
+          multiplier: 2.0         # Double each time
+          max-interval: 60000
+          default-requeue-rejected: false
 
 jwt:
   secret: ${JWT_SECRET:}
