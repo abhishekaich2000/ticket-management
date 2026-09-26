@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ticket.management.entity.Schedular;
-import com.ticket.management.entity.SchedularEventType;
+import com.ticket.management.entity.enums.SchedularEventType;
 
 public interface SchedularRepository extends JpaRepository<Schedular, Long>{
 

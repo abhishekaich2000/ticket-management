@@ -1,10 +1,10 @@
 package com.ticket.management.service;
 
 import com.ticket.management.entity.TicketHistory;
-import com.ticket.management.entity.TicketEventType;
+import com.ticket.management.entity.enums.TicketEventType;
 import com.ticket.management.entity.User;
 import com.ticket.management.entity.Ticket;
-import com.ticket.management.entity.TicketEntityType;
+import com.ticket.management.entity.enums.TicketEntityType;
 import com.ticket.management.repository.TicketHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

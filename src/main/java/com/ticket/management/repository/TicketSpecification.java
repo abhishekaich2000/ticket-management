@@ -6,9 +6,9 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.ticket.management.entity.Ticket;
-import com.ticket.management.entity.TicketCategory;
-import com.ticket.management.entity.TicketPriority;
-import com.ticket.management.entity.TicketStatus;
+import com.ticket.management.entity.enums.TicketCategory;
+import com.ticket.management.entity.enums.TicketPriority;
+import com.ticket.management.entity.enums.TicketStatus;
 
 import jakarta.persistence.criteria.Predicate;
 

@@ -6,14 +6,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 
-import com.ticket.management.dto.PagedResponse;
-import com.ticket.management.dto.TicketAssginDto;
-import com.ticket.management.dto.TicketResponseDto;
-import com.ticket.management.dto.TicketStatusDto;
-import com.ticket.management.dto.TicketPriorityDto;
-import com.ticket.management.dto.TicketCategoryDto;
-import com.ticket.management.dto.TicketSlaDueDateDto;
-import com.ticket.management.dto.TicketSortField;
+import com.ticket.management.dto.ticket.PagedResponse;
+import com.ticket.management.dto.ticket.TicketAssginDto;
+import com.ticket.management.dto.ticket.TicketResponseDto;
+import com.ticket.management.dto.ticket.TicketStatusDto;
+import com.ticket.management.dto.ticket.TicketPriorityDto;
+import com.ticket.management.dto.ticket.TicketCategoryDto;
+import com.ticket.management.dto.ticket.TicketSlaDueDateDto;
+import com.ticket.management.dto.ticket.TicketSortField;
 
 import jakarta.validation.Valid;
 
@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
-import com.ticket.management.dto.TicketUpdateRequestDto;
-import com.ticket.management.entity.TicketCategory;
-import com.ticket.management.entity.TicketPriority;
-import com.ticket.management.entity.TicketStatus;
-import com.ticket.management.repository.SortOrder;
+import com.ticket.management.dto.ticket.TicketUpdateRequestDto;
+import com.ticket.management.entity.enums.TicketCategory;
+import com.ticket.management.entity.enums.TicketPriority;
+import com.ticket.management.entity.enums.TicketStatus;
+import com.ticket.management.dto.ticket.SortOrder;
 import com.ticket.management.service.TicketService;
 
 @RestController 

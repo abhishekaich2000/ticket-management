@@ -9,7 +9,7 @@ import java.util.Date;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
-import com.ticket.management.dto.JwtDto;
+import com.ticket.management.dto.auth.JwtDto;
 import com.ticket.management.config.JwtProperties;
 import lombok.RequiredArgsConstructor;
 

@@ -1,5 +1,7 @@
 package com.ticket.management.entity;
 
+import com.ticket.management.entity.enums.TicketEntityType;
+import com.ticket.management.entity.enums.TicketEventType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.ticket.management.dto.JwtDto;
-import com.ticket.management.dto.UserLoginDto;
-import com.ticket.management.dto.UserRequestDto;
-import com.ticket.management.dto.UserResponseDto;
+import com.ticket.management.dto.auth.JwtDto;
+import com.ticket.management.dto.auth.UserLoginDto;
+import com.ticket.management.dto.auth.UserRequestDto;
+import com.ticket.management.dto.auth.UserResponseDto;
 import com.ticket.management.service.AuthService;
 import com.ticket.management.service.JwtService;
 

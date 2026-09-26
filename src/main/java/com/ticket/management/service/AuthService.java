@@ -11,8 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 
-import com.ticket.management.dto.UserRequestDto;
-import com.ticket.management.dto.UserResponseDto;
+import com.ticket.management.dto.auth.UserRequestDto;
+import com.ticket.management.dto.auth.UserResponseDto;
 import com.ticket.management.exception.ResourceConflictException;
 import com.ticket.management.repository.RoleRepository;
 import com.ticket.management.repository.UserRepository;

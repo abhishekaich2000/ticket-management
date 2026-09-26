@@ -2,7 +2,7 @@ package com.ticket.management.controller;
 
 import com.ticket.management.entity.TicketHistory;
 import com.ticket.management.service.TicketHistoryService;
-import com.ticket.management.dto.TicketHistoryResponseDto;
+import com.ticket.management.dto.ticket.TicketHistoryResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

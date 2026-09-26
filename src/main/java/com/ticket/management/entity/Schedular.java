@@ -1,6 +1,7 @@
 package com.ticket.management.entity;
 
-
+import com.ticket.management.entity.enums.SchedularEventType;
+import com.ticket.management.entity.enums.SchedularType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

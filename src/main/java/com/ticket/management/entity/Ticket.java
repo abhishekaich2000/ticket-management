@@ -1,5 +1,8 @@
 package com.ticket.management.entity;
 
+import com.ticket.management.entity.enums.TicketCategory;
+import com.ticket.management.entity.enums.TicketPriority;
+import com.ticket.management.entity.enums.TicketStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;

@@ -1,9 +1,9 @@
 package com.ticket.management.controller;
 
 import com.ticket.management.service.TicketCommentService;
-import com.ticket.management.dto.PagedResponse;
-import com.ticket.management.dto.TicketCommentRequestDto;
-import com.ticket.management.dto.TicketCommentResponseDto;
+import com.ticket.management.dto.ticket.PagedResponse;
+import com.ticket.management.dto.ticket.TicketCommentRequestDto;
+import com.ticket.management.dto.ticket.TicketCommentResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

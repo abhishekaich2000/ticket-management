@@ -1,16 +1,16 @@
 package com.ticket.management.service;
 
-import com.ticket.management.dto.PagedResponse;
-import com.ticket.management.dto.TicketCommentResponseDto;
+import com.ticket.management.dto.ticket.PagedResponse;
+import com.ticket.management.dto.ticket.TicketCommentResponseDto;
 import com.ticket.management.entity.TicketComment;
-import com.ticket.management.entity.TicketEntityType;
-import com.ticket.management.entity.TicketEventType;
+import com.ticket.management.entity.enums.TicketEntityType;
+import com.ticket.management.entity.enums.TicketEventType;
 import com.ticket.management.entity.User;
-import com.ticket.management.events.TicketEvent;
+import com.ticket.management.messaging.event.TicketEvent;
 import com.ticket.management.repository.TicketCommentRepository;
 import com.ticket.management.repository.TicketRepository;
 import com.ticket.management.exception.ResourceNotFoundException;
-import com.ticket.management.mq.producer.TicketEventsProducer;
+import com.ticket.management.messaging.producer.TicketEventsProducer;
 import com.ticket.management.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 

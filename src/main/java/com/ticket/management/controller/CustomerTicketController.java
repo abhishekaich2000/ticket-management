@@ -2,14 +2,14 @@ package com.ticket.management.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ticket.management.dto.PagedResponse;
-import com.ticket.management.dto.TicketRequestDto;
-import com.ticket.management.dto.TicketResponseDto;
-import com.ticket.management.dto.TicketSortField;
-import com.ticket.management.entity.TicketCategory;
-import com.ticket.management.entity.TicketPriority;
-import com.ticket.management.entity.TicketStatus;
-import com.ticket.management.repository.SortOrder;
+import com.ticket.management.dto.ticket.PagedResponse;
+import com.ticket.management.dto.ticket.TicketRequestDto;
+import com.ticket.management.dto.ticket.TicketResponseDto;
+import com.ticket.management.dto.ticket.TicketSortField;
+import com.ticket.management.entity.enums.TicketCategory;
+import com.ticket.management.entity.enums.TicketPriority;
+import com.ticket.management.entity.enums.TicketStatus;
+import com.ticket.management.dto.ticket.SortOrder;
 import com.ticket.management.service.TicketService;
 
 import lombok.RequiredArgsConstructor;

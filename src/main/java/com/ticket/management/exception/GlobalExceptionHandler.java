@@ -2,7 +2,7 @@ package com.ticket.management.exception;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.ticket.management.dto.ErrorRecordDto;
+import com.ticket.management.dto.error.ErrorRecordDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDateTime;
