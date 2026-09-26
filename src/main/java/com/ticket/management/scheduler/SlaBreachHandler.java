@@ -14,9 +14,7 @@ import com.ticket.management.entity.enums.SchedularEventType;
 import com.ticket.management.entity.enums.TicketEntityType;
 import com.ticket.management.entity.enums.TicketEventType;
 import com.ticket.management.entity.enums.TicketStatus;
-import com.ticket.management.repository.TicketHistoryRepository;
 import com.ticket.management.repository.TicketRepository;
-import com.ticket.management.service.TicketHistoryService;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +30,11 @@ public class SlaBreachHandler implements SchedularJobHandler{
 
     private final TicketRepository ticketRepository;
     private final SchedularService schedularService;
-    private final TicketHistoryRepository ticketHistoryRepository;
 
     public SlaBreachHandler(TicketRepository ticketRepository,
-                            @Lazy SchedularService schedularService,
-                            TicketHistoryRepository ticketHistoryRepository) {
+                            @Lazy SchedularService schedularService) {
         this.ticketRepository = ticketRepository;
         this.schedularService = schedularService;
-        this.ticketHistoryRepository = ticketHistoryRepository;
     }
 
     @Transactional
@@ -51,7 +46,7 @@ public class SlaBreachHandler implements SchedularJobHandler{
             log.info("No sla breached tickets found");
             return;
         }
-        markTicketsAsSlaBreached(tickets);
+        markTicketsAsSlaBreachedAndRecordHistory(tickets);
         Optional<Ticket> remaining = ticketRepository
             .findFirstBySlaDueAtIsNotNullAndStatusNotInAndIsSlaBreachedFalseOrderBySlaDueAtAsc(INVALID_TICKET_STATUS);
         if (remaining.isEmpty()) {
@@ -67,20 +62,8 @@ public class SlaBreachHandler implements SchedularJobHandler{
         return SchedularEventType.SLA_BREACH;
     }
 
-    private void recordTicketHistories(List<Ticket> tickets){
-        List<TicketHistory> histories = tickets.stream()
-            .map(t -> {
-                TicketHistory history = new TicketHistory();
-                history.setTicket(t);
-                history.setEntityType(TicketEntityType.SLA);
-                history.setEventType(TicketEventType.SLA_BREACHED);
-                return history;
-            }).toList();
-        ticketHistoryRepository.saveAll(histories);
-        log.warn("Total {} ticket histories recorded", histories.size());
-    }
 
-    private void markTicketsAsSlaBreached(List<Ticket> tickets){
+    private void markTicketsAsSlaBreachedAndRecordHistory(List<Ticket> tickets){
         log.warn("Total {} sla breached tickets found", tickets.size());
         List<Ticket> updated = tickets.stream()
             .peek(t -> {
