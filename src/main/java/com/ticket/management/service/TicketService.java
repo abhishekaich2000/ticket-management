@@ -50,6 +50,7 @@ public class TicketService {
     private final UserRepository userRepository;
     private final TicketEventsProducer ticketEventsProducer;
 
+    @Transactional 
     public TicketResponseDto createTicket(TicketRequestDto ticketRequestDto) {
         Ticket ticket = new Ticket();
         ticket.setTicketNumber(generateTicketNumber());

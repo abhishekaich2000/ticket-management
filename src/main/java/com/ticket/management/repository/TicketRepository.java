@@ -18,4 +18,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>,  JpaSpeci
 
     List<Ticket> findBySlaDueAtLessThan(LocalDateTime currDateTime);
 
+    // Get ticket with lowest/earliest SLA due date
+    Optional<Ticket> findFirstBySlaDueAtIsNotNullOrderBySlaDueAtAsc();
 }
