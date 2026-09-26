@@ -36,4 +36,7 @@ public class Schedular {
 
     @Column (name="periodicity", nullable = false)
     private Long periodicity;
+
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true;
 }

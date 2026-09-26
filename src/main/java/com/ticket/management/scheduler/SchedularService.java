@@ -2,20 +2,23 @@ package com.ticket.management.scheduler;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import com.ticket.management.entity.Schedular;
+import com.ticket.management.entity.enums.SchedularEventType;
 import com.ticket.management.entity.enums.SchedularType;
-import com.ticket.management.entity.Ticket;
-import com.ticket.management.repository.TicketRepository;
+import com.ticket.management.repository.SchedularRepository;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,16 +28,22 @@ import lombok.extern.slf4j.Slf4j;
 public class SchedularService {
 
     private final TaskScheduler taskScheduler;
-    private final TicketRepository ticketRepository;
-
+    private final SchedularRepository schedularRepository;
     private final Map<Long, ScheduledFuture<?>> scheduledTasks=new ConcurrentHashMap<>();
+    private final List<SchedularJobHandler> jobHandlers;
+    private Map<SchedularEventType, SchedularJobHandler> schedularHandlers;
 
     public void schedule(Schedular schedular){
+
+        if(schedular.getId() == null){
+            throw new IllegalArgumentException("Schedular id cannot be null");
+        }
+        cancel(schedular.getId());
         ScheduledFuture<?> future=null;
         if(schedular.getType() == SchedularType.ONE_TIME){
-            future = taskScheduler.scheduleWithFixedDelay(
+            future = taskScheduler.schedule(
                 ()->execute(schedular), 
-                Duration.ofMillis(schedular.getStartTime()));
+                Instant.ofEpochMilli(schedular.getStartTime()));
         }else{
             future = taskScheduler.scheduleWithFixedDelay(
                 ()->execute(schedular), 
@@ -68,24 +77,51 @@ public class SchedularService {
     }
 
     private void handlePeriodicSchedular(Schedular schedular){
-        switch (schedular.getEventType()) {
-            case SLA_BREACH:
-                handleSLABreach(schedular);
-                break;
-        
-            default:
-                log.warn("Periodic Schedular with event type {} not handled", schedular.getEventType());
-                break;
+        SchedularJobHandler handler = schedularHandlers.get(schedular.getEventType());
+        if (handler == null) {
+            log.warn("No handler for {}", schedular.getEventType());
+            return;
+        }
+        handler.handle(schedular);
+    }
+
+    public void cancel(Long schedularId){
+        ScheduledFuture<?> future = scheduledTasks.remove(schedularId);
+        if(future != null){
+            future.cancel(true);
+            log.warn("Schedular with id {} is cancelled", schedularId);
         }
     }
 
-    private void handleSLABreach(Schedular schedular){
-        log.info("SLA breach schedular is invoked");
-        List<Ticket> tickets = ticketRepository.findBySlaDueAtLessThan(LocalDateTime.now());
-        if(tickets.isEmpty()){
-                log.info("No sla breached tickets found");
-                return;
+    public void disable(Schedular schedular){
+        cancel(schedular.getId());
+        schedular.setEnabled(false);
+        schedularRepository.save(schedular);
+        log.warn("Schedular with id {} is disabled", schedular.getId());
+    }
+
+    public void reschedule(Schedular schedular){
+        schedule(schedular);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void restoreEnabledJobs() {
+        List<Schedular> jobs = schedularRepository.findByEnabledTrue();
+        for (Schedular job : jobs) {
+            try {
+                schedule(job);
+                log.info("Restored schedular id={} eventType={}", job.getId(), job.getEventType());
+            } catch (Exception e) {
+                log.error("Failed to restore schedular id={}", job.getId(), e);
             }
-        log.warn("Total {} sla breached tickets found", tickets.size());
+        }
+        log.info("Restored {} enabled schedulers", jobs.size()); 
+    }
+
+
+    @PostConstruct
+    void initHandlers() {
+        schedularHandlers = jobHandlers.stream()
+            .collect(Collectors.toMap(SchedularJobHandler::supports, h -> h));
     }
 }

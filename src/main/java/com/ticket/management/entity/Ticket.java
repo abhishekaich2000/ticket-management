@@ -95,6 +95,9 @@ public class Ticket extends BaseEntity{
     @Column(name = "sla_due_at", nullable = true)
     private LocalDateTime slaDueAt;
 
+    @Column(name = "is_sla_breached", nullable = false)
+    private boolean isSlaBreached = false;
+
     @OneToMany(mappedBy = "ticket", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore 
     private List<TicketComment> ticketComments = new ArrayList<>();

@@ -4,7 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.ticket.management.entity.Ticket;
+import com.ticket.management.entity.enums.TicketStatus;
+
 import java.util.Optional;
+import java.util.Collection;
 import java.util.List;
 import java.time.LocalDateTime;
 
@@ -16,8 +19,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>,  JpaSpeci
 
     Optional<Ticket> findByIdAndCustomerId(Long id, Long customerId);
 
-    List<Ticket> findBySlaDueAtLessThan(LocalDateTime currDateTime);
+    List<Ticket> findBySlaDueAtLessThanAndIsSlaBreachedFalse(LocalDateTime currDateTime);
 
     // Get ticket with lowest/earliest SLA due date
-    Optional<Ticket> findFirstBySlaDueAtIsNotNullOrderBySlaDueAtAsc();
+    Optional<Ticket> findFirstBySlaDueAtGreaterThanEqualAndStatusNotInOrderBySlaDueAtAsc(
+        LocalDateTime now,
+        Collection<TicketStatus> statuses
+    );
+
+    Optional<Ticket> findFirstBySlaDueAtIsNotNullAndStatusNotInAndIsSlaBreachedFalseOrderBySlaDueAtAsc( Collection<TicketStatus> statuses);
 }
