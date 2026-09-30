@@ -1,11 +1,16 @@
 package com.ticket.management.messaging.helper;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.ticket.management.entity.Ticket;
 import com.ticket.management.entity.User;
+import com.ticket.management.entity.enums.TicketCategory;
 import com.ticket.management.messaging.event.TicketEvent;
 import com.ticket.management.repository.TicketRepository;
 import com.ticket.management.repository.UserRepository;
@@ -23,6 +28,9 @@ public class TicketEventProcessor {
     private final UserRepository userRepository;
     private final TicketHistoryService ticketHistoryService;
     private final TicketRepository ticketRepository;
+
+    @Qualifier("ticketClassifierChatClient")
+    private final ChatClient ticketClassifierChatClient;
 
     @Transactional 
     public void processTicketEvent(TicketEvent event){
@@ -42,6 +50,18 @@ public class TicketEventProcessor {
         ticketHistoryService.recordEvent(ticket, 
             user, event.getEntityType(), event.getEventType(),
             event.getOldValue(),event.getNewValue(), event.getTimestamp());
+
+        String ticketDescription = ticket.getDescription();
+        String categories = Arrays.stream(TicketCategory.values())
+            .map(Enum::name)
+            .collect(Collectors.joining(", "));
+
+        String category = ticketClassifierChatClient.prompt()
+            .system(s -> s.param("categories", categories))
+            .user(ticketDescription != null ? ticketDescription : "")
+            .call()
+            .content();
+        log.info("Ticket category: {}", category);
 
         log.info("Recorded ticket with entity {} with event {} for ticket ID {} by user ID {}", event.getEntityType(), event.getEventType(), event.getTicketId(), event.getUserId());
     }

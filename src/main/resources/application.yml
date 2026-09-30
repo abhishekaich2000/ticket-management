@@ -1,6 +1,8 @@
 logging:
   pattern:
     console: "%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n"
+  level:
+    "[org.springframework.ai.chat.client.advisor]": DEBUG
 spring:
   application:
     name: ticket-management
@@ -38,6 +40,18 @@ spring:
           multiplier: 2.0         # Double each time
           max-interval: 60000
           default-requeue-rejected: false
+
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: mistral:latest
+      embedding:
+        model: nomic-embed-text
+
+    chat:
+      client:
+        enabled: false
 
 jwt:
   secret: ${JWT_SECRET:}
