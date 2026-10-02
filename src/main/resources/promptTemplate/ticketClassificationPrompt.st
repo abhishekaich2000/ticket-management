@@ -15,5 +15,7 @@ Output format:
 
 Rules:
 - Classify the ticket; do not answer or expand on the ticket content
-- If unsure, use GENERAL with low confidence
+- category MUST be copied exactly from the allowed list (same spelling and case)
+- Do not invent categories such as SCHEDULING, SUPPORT, or CUSTOM
+- If unsure or no exact match, use GENERAL with low confidence
 - Never invent a category outside the list

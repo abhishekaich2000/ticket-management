@@ -37,52 +37,54 @@ public class SlaSchedulerProcessor {
 
     @Transactional 
     public void handleSlaSchedular(TicketEvent event){
+        try{
+            if(!isValidSlaEvent(event)){
+                log.info("No valid SLA event found, thus skipping");
+                return;
+            }
 
-        if(!isValidSlaEvent(event)){
-            log.info("No valid SLA event found, thus skipping");
-            return;
-        }
+            Optional<Schedular> schOptional = schedularRepository.findByEventType(SchedularEventType.SLA_BREACH);
+            Optional<Ticket> ticketOpt = ticketRepository.findFirstBySlaDueAtIsNotNullAndStatusNotInAndIsSlaBreachedFalseOrderBySlaDueAtAsc(INVALID_TICKET_STATUS_SCHEDULE);
+            
+            if(!ticketOpt.isPresent()){
+                schedularRepository.findByEventType(SchedularEventType.SLA_BREACH)
+                .ifPresent(schedularService::disable);
+                return;
+            }
 
-        Optional<Schedular> schOptional = schedularRepository.findByEventType(SchedularEventType.SLA_BREACH);
-        Optional<Ticket> ticketOpt = ticketRepository.findFirstBySlaDueAtIsNotNullAndStatusNotInAndIsSlaBreachedFalseOrderBySlaDueAtAsc(INVALID_TICKET_STATUS_SCHEDULE);
-        
-        if(!ticketOpt.isPresent()){
-            schedularRepository.findByEventType(SchedularEventType.SLA_BREACH)
-            .ifPresent(schedularService::disable);
-            return;
-        }
+            long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), ticketOpt.get().getSlaDueAt());
+            if (delayMs < 0) {
+                delayMs = Math.abs(delayMs);
+            }
+            
+            long minutes = Duration.ofMillis(delayMs).toMinutes();
+            minutes = (long) (Math.sqrt(minutes));
+            delayMs = Duration.ofMinutes(minutes).toMillis();
+            Long starttime = System.currentTimeMillis() + delayMs;
+            if(schOptional.isPresent()){
+                Schedular job=schOptional.get();
+                job.setEnabled(true);
+                job.setType(SchedularType.PERIODIC);
+                job.setPeriodicity(delayMs);
+                job.setStartTime(starttime);
+                schedularRepository.save(job);
+                schedularService.reschedule(job);
+                log.info("Rescheduled SLA_BREACH job id={} delayMs={}", job.getId(), delayMs);
+                return;
+            }
 
-        long delayMs = ChronoUnit.MILLIS.between(LocalDateTime.now(), ticketOpt.get().getSlaDueAt());
-        if (delayMs < 0) {
-            delayMs = Math.abs(delayMs);
-        }
-        
-        long minutes = Duration.ofMillis(delayMs).toMinutes();
-        minutes = (long) (Math.sqrt(minutes));
-        delayMs = Duration.ofMinutes(minutes).toMillis();
-        Long starttime = System.currentTimeMillis() + delayMs;
-        if(schOptional.isPresent()){
-            Schedular job=schOptional.get();
-            job.setEnabled(true);
+            Schedular job = new Schedular();
+            job.setEventType(SchedularEventType.SLA_BREACH);
             job.setType(SchedularType.PERIODIC);
-            job.setPeriodicity(delayMs);
+            job.setEnabled(true);
             job.setStartTime(starttime);
+            job.setPeriodicity(delayMs);
             schedularRepository.save(job);
-            schedularService.reschedule(job);
-            log.info("Rescheduled SLA_BREACH job id={} delayMs={}", job.getId(), delayMs);
-            return;
+            schedularService.schedule(job);
+            log.info("Created SLA_BREACH job id={} delayMs={}", job.getId(), delayMs);
+        } catch (Exception e) {
+            log.error("Error while handling SLA schedular: {}", e);
         }
-
-        Schedular job = new Schedular();
-        job.setEventType(SchedularEventType.SLA_BREACH);
-        job.setType(SchedularType.PERIODIC);
-        job.setEnabled(true);
-        job.setStartTime(starttime);
-        job.setPeriodicity(delayMs);
-        schedularRepository.save(job);
-        schedularService.schedule(job);
-        log.info("Created SLA_BREACH job id={} delayMs={}", job.getId(), delayMs);
-    
     }
 
     private boolean isValidSlaEvent(TicketEvent event){

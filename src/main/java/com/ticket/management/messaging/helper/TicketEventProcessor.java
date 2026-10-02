@@ -34,35 +34,27 @@ public class TicketEventProcessor {
 
     @Transactional 
     public void processTicketEvent(TicketEvent event){
-        log.info("Received Ticket Created Event: {}", event);
-        Optional<Ticket> optionalTicket = ticketRepository.findById(event.getTicketId());
-        if(!optionalTicket.isPresent()) {
-            log.warn("Ticket with ID {} not found", event.getTicketId());
-            return;
+        try{
+            log.info("Received Ticket Created Event: {}", event);
+            Optional<Ticket> optionalTicket = ticketRepository.findById(event.getTicketId());
+            if(!optionalTicket.isPresent()) {
+                log.warn("Ticket with ID {} not found", event.getTicketId());
+                return;
+            }
+            Optional<User> optionalUser = userRepository.findById(event.getUserId());
+            if(!optionalUser.isPresent()) {
+                log.warn("User with ID {} not found", event.getUserId());
+                return;
+            }
+            Ticket ticket = optionalTicket.get();
+            User user = optionalUser.get();
+            ticketHistoryService.recordEvent(ticket, 
+                user, event.getEntityType(), event.getEventType(),
+                event.getOldValue(),event.getNewValue(), event.getTimestamp());
+
+            log.info("Recorded ticket with entity {} with event {} for ticket ID {} by user ID {}", event.getEntityType(), event.getEventType(), event.getTicketId(), event.getUserId());
+        } catch (Exception e) {
+            log.error("Error while processing ticket event: {}", e);
         }
-        Optional<User> optionalUser = userRepository.findById(event.getUserId());
-        if(!optionalUser.isPresent()) {
-            log.warn("User with ID {} not found", event.getUserId());
-            return;
-        }
-        Ticket ticket = optionalTicket.get();
-        User user = optionalUser.get();
-        ticketHistoryService.recordEvent(ticket, 
-            user, event.getEntityType(), event.getEventType(),
-            event.getOldValue(),event.getNewValue(), event.getTimestamp());
-
-        String ticketDescription = ticket.getDescription();
-        String categories = Arrays.stream(TicketCategory.values())
-            .map(Enum::name)
-            .collect(Collectors.joining(", "));
-
-        String category = ticketClassifierChatClient.prompt()
-            .system(s -> s.param("categories", categories))
-            .user(ticketDescription != null ? ticketDescription : "")
-            .call()
-            .content();
-        log.info("Ticket category: {}", category);
-
-        log.info("Recorded ticket with entity {} with event {} for ticket ID {} by user ID {}", event.getEntityType(), event.getEventType(), event.getTicketId(), event.getUserId());
     }
 }
