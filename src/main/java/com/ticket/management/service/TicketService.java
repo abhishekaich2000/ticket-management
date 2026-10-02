@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import com.ticket.management.ai.service.TickerSummarizer;
 import com.ticket.management.dto.ticket.PagedResponse;
 import com.ticket.management.dto.ticket.TicketRequestDto;
 import com.ticket.management.dto.ticket.TicketResponseDto;
@@ -49,6 +51,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final TicketEventsProducer ticketEventsProducer;
+    private final TickerSummarizer ticketSummarizer;
 
     @Transactional 
     public TicketResponseDto createTicket(TicketRequestDto ticketRequestDto) {
@@ -476,5 +479,11 @@ public class TicketService {
         } else {
             ticket.setPriority(TicketPriority.URGENT);
         }
+    }
+
+    public String summarizeTicket(Long id) {
+        Ticket ticket = ticketRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket not found"));
+        return ticketSummarizer.summarizeTicket(ticket, ticket.getTicketComments());
     }
 }

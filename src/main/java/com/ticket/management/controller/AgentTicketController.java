@@ -31,6 +31,8 @@ import com.ticket.management.entity.enums.TicketPriority;
 import com.ticket.management.entity.enums.TicketStatus;
 import com.ticket.management.dto.ticket.SortOrder;
 import com.ticket.management.service.TicketService;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 @RestController 
 @RequestMapping("/agents/tickets")
@@ -112,5 +114,12 @@ public class AgentTicketController {
         @Valid @RequestBody TicketSlaDueDateDto ticketSlaDueDateDto
     ) {
         return ticketService.updateSlaDueAt(id, ticketSlaDueDateDto.getSlaDueAt());
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'AGENT')")
+    @PostMapping("/{id}/summarize")
+    public ResponseEntity<String> summarizeTicket(@PathVariable Long id) {
+        String summary = ticketService.summarizeTicket(id);
+        return ResponseEntity.ok(summary);
     }
 }
